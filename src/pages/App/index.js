@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import css from "./style.module.css";
@@ -15,63 +15,55 @@ import Logout from "../../components/Logout";
 
 import * as actions from "../../redux/action/loginActions";
 
-class App extends Component {
-  state = {
-    showSideBar: false,
-  };
-  toggleSideBar = () => {
-    this.setState((prevState) => {
-      return { showSideBar: !prevState.showSideBar };
-    });
+const App = (props) => {
+  const [showSideBar, setShowSideBar] = useState(false);
+
+  const toggleSideBar = () => {
+    setShowSideBar((prevShowSideBar) => !prevShowSideBar);
   };
 
-  componentDidMount = () => {
+  useEffect(() => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
     const expireDate = new Date(localStorage.getItem("expireDate"));
     const refreshToken = localStorage.getItem("refreshToken");
     if (token) {
       if (expireDate > new Date()) {
-        this.props.autoLogin(token, userId);
+        props.autoLogin(token, userId);
       } else {
         //Token hugatsaa duussan
-        this.props.logout();
+        props.logout();
         // Token huchingui bolohod uldej bga hugatsaag tootsoolj ter hugatsaanii daraa autmataar logout hiine
-        this.props.autoLogoutAfterMillisec(
+        props.autoLogoutAfterMillisec(
           expireDate.getTime() - new Date().getTime()
         );
       }
     }
-  };
+  }, []);
 
-  render() {
-    return (
-      <div>
-        <Toolbar toggleSideBar={this.toggleSideBar} />
-        <SideBar
-          showSideBar={this.state.showSideBar}
-          toggleSideBar={this.toggleSideBar}
-        />
-        <main className={css.Content}>
-          {this.props.userId ? (
-            <Switch>
-              <Route path="/logout" component={Logout} />
-              <Route path="/orders" component={OrderPage} />
-              <Route path="/ship" component={ShippingPage} />
-              <Route path="/" component={BurgerPage} />
-            </Switch>
-          ) : (
-            <Switch>
-              <Route path="/signup" component={SignupPage} />
-              <Route path="/login" component={LoginPage} />
-              <Redirect to="/login" />
-            </Switch>
-          )}
-        </main>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Toolbar toggleSideBar={toggleSideBar} />
+      <SideBar showSideBar={showSideBar} toggleSideBar={toggleSideBar} />
+      <main className={css.Content}>
+        {props.userId ? (
+          <Switch>
+            <Route path="/logout" component={Logout} />
+            <Route path="/orders" component={OrderPage} />
+            <Route path="/ship" component={ShippingPage} />
+            <Route path="/" component={BurgerPage} />
+          </Switch>
+        ) : (
+          <Switch>
+            <Route path="/signup" component={SignupPage} />
+            <Route path="/login" component={LoginPage} />
+            <Redirect to="/login" />
+          </Switch>
+        )}
+      </main>
+    </div>
+  );
+};
 
 const mapStateToProps = (state) => {
   return {

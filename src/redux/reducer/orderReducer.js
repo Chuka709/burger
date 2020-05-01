@@ -7,35 +7,44 @@ const initialState = {
   newOrder: {
     saving: false,
     finished: false,
-    error: null
-  }
+    error: null,
+  },
 };
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case "CLEAR_ORDER":
+      return {
+        ...state,
+        newOrder: {
+          saving: false,
+          finished: false,
+          error: null,
+        },
+      };
     case "LOAD_ORDERS_START":
       return {
         ...state,
-        loading: true
+        loading: true,
       };
     case "LOAD_ORDERS_SUCCESS":
       return {
         ...state,
         loading: false,
-        orders: action.orders
+        orders: action.orders,
       };
     case "LOAD_ORDERS_ERROR":
       return {
         ...state,
         loading: false,
-        error: action.error
+        error: action.error,
       };
     case "SAVE_ORDER_START":
       return {
         ...state,
         newOrder: {
           ...state.newOrder,
-          saving: true
-        }
+          saving: true,
+        },
       };
     case "SAVE_ORDER_SUCCESS":
       return {
@@ -44,8 +53,8 @@ const reducer = (state = initialState, action) => {
           ...state.newOrder,
           saving: false,
           finished: true,
-          error: null
-        }
+          error: null,
+        },
       };
     case "SAVE_ORDER_ERROR":
       return {
@@ -54,8 +63,8 @@ const reducer = (state = initialState, action) => {
           ...state.newOrder,
           saving: false,
           finished: true,
-          error: action.errorMessage
-        }
+          error: action.errorMessage,
+        },
       };
 
     default:

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import BuildControl from "../BuildControl";
 import css from "./style.module.css";
 
-const BuildControls = props => {
+const BuildControls = (props) => {
   const disabledIngredients = { ...props.ingredients };
   for (let key in disabledIngredients) {
     disabledIngredients[key] = disabledIngredients[key] <= 0;
@@ -14,7 +14,7 @@ const BuildControls = props => {
       <p>
         Бургерийн үнэ: <strong>{props.price}</strong>
       </p>
-      {Object.keys(props.ingredientNames).map(el => (
+      {Object.keys(props.ingredientNames).map((el) => (
         <BuildControl
           key={el}
           disabled={disabledIngredients}
@@ -35,18 +35,18 @@ const BuildControls = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     ingredients: state.burgerReducer.ingredients,
     price: state.burgerReducer.totalPrice,
     purchasing: state.burgerReducer.purchasing,
-    ingredientNames: state.burgerReducer.ingredientNames
+    ingredientNames: state.burgerReducer.ingredientNames,
   };
 };
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    ortsNemeh: ortsNer => dispatch(actions.addIngredient(ortsNer)),
-    ortsHasah: ortsNer => dispatch(actions.removeIngredient(ortsNer))
+    ortsNemeh: (ortsNer) => dispatch(actions.addIngredient(ortsNer)),
+    ortsHasah: (ortsNer) => dispatch(actions.removeIngredient(ortsNer)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(BuildControls);

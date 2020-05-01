@@ -1,72 +1,63 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import css from "./style.module.css";
 import Button from "../../components/General/Button";
 import Spinner from "../../components/General/Spinner";
 import * as actions from "../../redux/action/signupActions";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-class SignupPage extends Component {
-  state = {
-    email: "",
-    password: "",
-    confirmPassword: "",
-    error: "",
-  };
-  signup = () => {
-    if (this.state.password === this.state.confirmPassword) {
-      this.props.signupUser(this.state.email, this.state.password);
+
+const SignupPage = (props) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const signup = () => {
+    if (password === confirmPassword) {
+      props.signupUser(email, password);
     } else {
-      this.setState({ error: "Нууц үгнүүд хоорондоо таарахгүй байна" });
+      setError("Нууц үгнүүд хоорондоо таарахгүй байна");
     }
   };
-  changeEmail = (e) => {
-    this.setState({
-      email: e.target.value,
-    });
+  const changeEmail = (e) => {
+    setEmail(e.target.value);
   };
-  changePassword = (e) => {
-    this.setState({
-      password: e.target.value,
-    });
+  const changePassword = (e) => {
+    setPassword(e.target.value);
   };
-  changeConfirmPassword = (e) => {
-    this.setState({
-      confirmPassword: e.target.value,
-    });
+  const changeConfirmPassword = (e) => {
+    setConfirmPassword(e.target.value);
   };
-  render() {
-    return (
-      <div className={css.Signup}>
-        {this.props.userId && <Redirect to="/" />}
-        <h1>Бүртгэлийн хэсэг</h1>
-        <div>Та өөрийн мэдээллээ оруулна уу</div>
-        <input
-          onChange={this.changeEmail}
-          type="text"
-          placeholder="Цахим шуудангийн хаягаа оруулна уу"
-        />
-        <input
-          onChange={this.changePassword}
-          type="password"
-          placeholder="Нууц үгээ оруулна уу"
-        />
-        <input
-          onChange={this.changeConfirmPassword}
-          type="password"
-          placeholder="Нууц үгээ давтан оруулна уу"
-        />
-        {this.state.error && (
-          <div style={{ color: "red" }}>{this.state.error}</div>
-        )}
-        {this.props.firebaseError && (
-          <div style={{ color: "red" }}>{this.props.firebaseError}</div>
-        )}
-        {this.props.saving && <Spinner />}
-        <Button text="БҮРТГҮҮЛЭХ" btnType="Success" clicked={this.signup} />
-      </div>
-    );
-  }
-}
+
+  return (
+    <div className={css.Signup}>
+      {props.userId && <Redirect to="/" />}
+      <h1>Бүртгэлийн хэсэг</h1>
+      <div>Та өөрийн мэдээллээ оруулна уу</div>
+      <input
+        onChange={changeEmail}
+        type="text"
+        placeholder="Цахим шуудангийн хаягаа оруулна уу"
+      />
+      <input
+        onChange={changePassword}
+        type="password"
+        placeholder="Нууц үгээ оруулна уу"
+      />
+      <input
+        onChange={changeConfirmPassword}
+        type="password"
+        placeholder="Нууц үгээ давтан оруулна уу"
+      />
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {props.firebaseError && (
+        <div style={{ color: "red" }}>{props.firebaseError}</div>
+      )}
+      {props.saving && <Spinner />}
+      <Button text="БҮРТГҮҮЛЭХ" btnType="Success" clicked={signup} />
+    </div>
+  );
+};
 
 const mapStateToProps = (state) => {
   return {
