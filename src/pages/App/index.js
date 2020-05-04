@@ -1,6 +1,5 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useContext } from "react";
 import { Redirect } from "react-router-dom";
-import { connect } from "react-redux";
 import css from "./style.module.css";
 
 import Toolbar from "../../components/Toolbar";
@@ -10,9 +9,9 @@ import ShippingPage from "../ShippingPage";
 import LoginPage from "../LoginPage";
 import Logout from "../../components/Logout";
 
-import * as actions from "../../redux/action/loginActions";
-
 import { BurgerStore } from "../../context/BurgerContext";
+import { OrderStore } from "../../context/OrdersContext";
+import UserContext from "../../context/UserContext";
 
 //Lazy loading hiih buyu edgeer huudsuudiig shaardlagatai uyd ni l duudna. Suspense ashiglana
 const BurgerPage = React.lazy(() => {
@@ -26,6 +25,7 @@ const OrderPage = React.lazy(() => {
 });
 
 const App = (props) => {
+  const userCtx = useContext(UserContext);
   const [showSideBar, setShowSideBar] = useState(false);
 
   const toggleSideBar = () => {
@@ -39,14 +39,15 @@ const App = (props) => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (token) {
       if (expireDate > new Date()) {
-        props.autoLogin(token, userId);
-      } else {
-        //Token hugatsaa duussan
-        props.logout();
+        userCtx.loginUserSuccess(token, userId, expireDate, refreshToken);
         // Token huchingui bolohod uldej bga hugatsaag tootsoolj ter hugatsaanii daraa autmataar logout hiine
-        props.autoLogoutAfterMillisec(
+        userCtx.autoRenewTokenAfterMillisec(
           expireDate.getTime() - new Date().getTime()
         );
+      } else {
+        //Token hugatsaa duussan
+        //userCtx.logout();
+        userCtx.autoRenewTokenAfterMillisec(3600000);
       }
     }
   }, []);
@@ -56,46 +57,45 @@ const App = (props) => {
       <Toolbar toggleSideBar={toggleSideBar} />
       <SideBar showSideBar={showSideBar} toggleSideBar={toggleSideBar} />
       <main className={css.Content}>
-        <Suspense fallback={<div>Түр хүлээнэ үү...</div>}>
-          {props.userId ? (
-            <Switch>
-              <Route path="/logout" component={Logout} />
-              <Route path="/orders" component={OrderPage} />
-              <BurgerStore>
+        <BurgerStore>
+          <Suspense fallback={<div>Түр хүлээнэ үү...</div>}>
+            {userCtx.state.userId ? (
+              <Switch>
+                <Route path="/logout" component={Logout} />
+                <Route path="/orders">
+                  <OrderStore>
+                    <OrderPage />
+                  </OrderStore>
+                </Route>
+
                 <Route path="/ship" component={ShippingPage} />
                 <Route path="/" component={BurgerPage} />
-              </BurgerStore>
-            </Switch>
-          ) : (
-            <Switch>
-              <Route path="/signup" component={SignupPage} />
-              <Route path="/login" component={LoginPage} />
-              <Redirect to="/login" />
-            </Switch>
-          )}
-        </Suspense>
+              </Switch>
+            ) : (
+              <Switch>
+                <Route path="/signup" component={SignupPage} />
+                <Route path="/login" component={LoginPage} />
+                <Redirect to="/login" />
+              </Switch>
+            )}
+          </Suspense>
+        </BurgerStore>
       </main>
     </div>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    userId: state.signupReducer.userId,
-  };
-};
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     autoLogin: (token, userId) =>
+//       dispatch(actions.loginUserSuccess(token, userId)),
+//     logout: () => {
+//       actions.logout();
+//     },
+//     autoLogoutAfterMillisec: (ms) => {
+//       actions.autoLogoutAfterMillisec(ms);
+//     },
+//   };
+// };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    autoLogin: (token, userId) =>
-      dispatch(actions.loginUserSuccess(token, userId)),
-    logout: () => {
-      actions.logout();
-    },
-    autoLogoutAfterMillisec: (ms) => {
-      actions.autoLogoutAfterMillisec(ms);
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import css from "./style.module.css";
 import Button from "../../components/General/Button";
 import Spinner from "../../components/General/Spinner";
-import * as actions from "../../redux/action/signupActions";
-import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 
+import UserContext from "../../context/UserContext";
+
 const SignupPage = (props) => {
+  const ctx = useContext(UserContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,7 +16,7 @@ const SignupPage = (props) => {
 
   const signup = () => {
     if (password === confirmPassword) {
-      props.signupUser(email, password);
+      ctx.signupUser(email, password);
     } else {
       setError("Нууц үгнүүд хоорондоо таарахгүй байна");
     }
@@ -31,7 +33,7 @@ const SignupPage = (props) => {
 
   return (
     <div className={css.Signup}>
-      {props.userId && <Redirect to="/" />}
+      {ctx.state.userId && <Redirect to="/" />}
       <h1>Бүртгэлийн хэсэг</h1>
       <div>Та өөрийн мэдээллээ оруулна уу</div>
       <input
@@ -50,27 +52,11 @@ const SignupPage = (props) => {
         placeholder="Нууц үгээ давтан оруулна уу"
       />
       {error && <div style={{ color: "red" }}>{error}</div>}
-      {props.firebaseError && (
-        <div style={{ color: "red" }}>{props.firebaseError}</div>
-      )}
-      {props.saving && <Spinner />}
+      {ctx.state.error && <div style={{ color: "red" }}>{ctx.state.error}</div>}
+      {ctx.state.saving && <Spinner />}
       <Button text="БҮРТГҮҮЛЭХ" btnType="Success" clicked={signup} />
     </div>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    saving: state.signupReducer.saving,
-    firebaseError: state.signupReducer.firebaseError,
-    userId: state.signupReducer.userId,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    signupUser: (email, password) =>
-      dispatch(actions.signupUser(email, password)),
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(SignupPage);
+export default SignupPage;

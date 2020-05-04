@@ -1,14 +1,13 @@
-import React, { useState } from "react";
-import { connect } from "react-redux";
+import React, { useState, useContext } from "react";
 import css from "./style.module.css";
 import Button from "../../components/General/Button";
-import * as actions from "../../redux/action/loginActions";
 import Spinner from "../../components/General/Spinner";
 import { Redirect } from "react-router-dom";
+import UserContext from "../../context/UserContext";
 
 const Login = (props) => {
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
+  const ctx = useContext(UserContext);
+
   const [form, setForm] = useState({ email: "", password: "" });
 
   const changeEmail = (e) => {
@@ -29,18 +28,18 @@ const Login = (props) => {
   };
 
   const login = () => {
-    props.login(form.email, form.password);
+    ctx.loginUser(form.email, form.password);
   };
   return (
     <div className={css.Login}>
-      {props.userId && <Redirect to="/orders" />}
+      {ctx.state.userId && <Redirect to="/orders" />}
       <h1>Нэвтрэх хэсэг</h1>
       <input onChange={changeEmail} type="text" placeholder="Email address" />
       <input onChange={changePassword} type="password" placeholder="Password" />
-      {props.loggingIn && <Spinner />}
-      {props.firebaseError && (
+      {ctx.state.loggingIn && <Spinner />}
+      {ctx.state.error && (
         <div style={{ color: "red" }}>
-          {props.firebaseError} | {props.firebaseErrorCode}
+          {ctx.state.error} | {ctx.state.errorCode}
         </div>
       )}
       <Button text="НЭВТРЭХ" btnType="Success" clicked={login} />
@@ -48,18 +47,4 @@ const Login = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    loggingIn: state.signupReducer.loggingIn,
-    firebaseError: state.signupReducer.firebaseError,
-    firebaseErrorCode: state.signupReducer.firebaseErrorCode,
-    userId: state.signupReducer.userId,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    login: (email, password) => dispatch(actions.loginUser(email, password)),
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;
