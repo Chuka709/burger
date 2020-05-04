@@ -1,17 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { connect } from "react-redux";
 
 import Spinner from "../../components/General/Spinner";
 import Order from "../../components/Order";
 import * as actions from "../../redux/action/orderActions";
+import BurgerContext from "../../context/BurgerContext";
 
 const OrderPage = (props) => {
   useEffect(() => {
     props.loadOrders(props.userId);
   }, []);
 
+  const appData = useContext(BurgerContext);
+
   return (
     <div>
+      {"" + appData}
       {props.loading ? (
         <Spinner />
       ) : (
